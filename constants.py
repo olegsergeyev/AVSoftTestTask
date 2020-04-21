@@ -1,5 +1,5 @@
-LINKS_START_WITH = ['mailto', 'tel', 'ftp', 'file']
-STATUS_CODE_REDIRECT = [301, 302, 303, 305, 307, 308]
+LINKS_START_WITH = ['mailto', 'tel', 'ftp', 'file', ':']
 STATUS_CODE_OK = 200
 STATUS_CODE_TOO_MANY_REQUESTS = 429
-MAX_ATTEMPTS = 7
+MAX_ATTEMPTS = 2
+MAX_DEEP = 3

@@ -36,8 +36,8 @@ class SiteMap:
 
 
 class BadUrl(Exception):
-    def __init__(self):
-        pass
+    """Исключение, вызываемое при неподходящем url"""
+    pass
 
 
 class Parser:
@@ -53,13 +53,13 @@ class Parser:
         self.link_parts = urlparse(url)
         self.url = url
         if not self.link_parts[0] or not self.link_parts[1]:
-            raise BadUrl
+            raise BadUrl('В url должны быть протокол и домен')
         try:
             response = requests.head(self.url, timeout=namespace.mt)
             if response.status_code != 200:
-                raise BadUrl
+                raise BadUrl('url недоступен')
         except (requests.ConnectionError, requests.exceptions.TooManyRedirects, requests.exceptions.Timeout):
-            raise BadUrl
+            raise BadUrl('url недоступен')
         self.site_map = SiteMap(url)
         self.leaves = [self.site_map]
         self.visited_links = []
@@ -115,10 +115,13 @@ class Parser:
                 if response.status_code == STATUS_CODE_OK:
                     return site, response.text
             except requests.ConnectionError:
+                print('Connection error for', site)
                 return
             except requests.exceptions.TooManyRedirects:
+                print('Too many redirects for', site)
                 return
             except requests.exceptions.Timeout:
+                print('Timeout for', site)
                 return
         return None
 
@@ -169,6 +172,7 @@ class Parser:
         """
         if len(site.visited_links) >= namespace.md:
             return
+        print('parsing', site)
         soup = BeautifulSoup(text, 'html.parser')
 
         site.visited_links.append(site.url)
@@ -235,5 +239,5 @@ if __name__ == '__main__':
         parser = Parser(namespace.link)
         parser.start()
         parser.save_graph(namespace.output)
-    except BadUrl:
-        print('Bad url')
+    except BadUrl as e:
+        print(e)
